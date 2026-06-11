@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD="$DIR/build-esp32"
+if [ ! -f "$BUILD/config/sdkconfig.json" ]; then
+    idf.py -B "$BUILD" set-target esp32
+fi
+idf.py -B "$BUILD" build

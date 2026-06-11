@@ -1,0 +1,15 @@
+target = "esp32"
+
+[module.ds1302]
+sclk = 22
+io = 19
+ce = 21
+
+[module.ipstube]
+
+[module.wifi]
+
+[module.ws2812]
+pin = 5
+count = 6
+order = "GRB"

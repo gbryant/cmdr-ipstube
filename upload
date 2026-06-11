@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PORT=$(python3 "$DIR/scripts/find_port.py" esp32)
+echo "Flashing $PORT..."
+idf.py -B "$DIR/build-esp32" -p "$PORT" flash

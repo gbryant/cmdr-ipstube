@@ -1,0 +1,19 @@
+# ESP-IDF build output
+build/
+build-esp32/
+
+# Generated config (regenerated from sdkconfig.defaults)
+sdkconfig
+sdkconfig.old
+
+# Managed components (re-fetched from dependencies.lock)
+managed_components/
+
+# Secrets — WiFi creds + API keys (copy secrets.h.example → secrets.h)
+secrets.h
+
+# Unrelated firmware-dump tooling kept locally
+old/
+
+# macOS
+.DS_Store
