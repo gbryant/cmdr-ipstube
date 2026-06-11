@@ -34,3 +34,8 @@ ESP-IDF v5+. Copy `secrets.h.example` → `secrets.h` and fill in WiFi + newsapi
 The commander framework is pulled via FetchContent (see `CMakeLists.txt`); update
 it with the normal cmdr flow. Display/text features live in commander's `ipstube`
 module; the clock/weather/news app logic is in `main/main.cpp`.
+
+## Credits
+
+The bundled UI font is [Karla](https://github.com/googlefonts/karla), © The Karla
+Project Authors, licensed under the [SIL Open Font License 1.1](main/fonts/Karla-Regular-OFL.txt).

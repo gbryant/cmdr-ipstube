@@ -17,3 +17,6 @@ old/
 
 # macOS
 .DS_Store
+
+# Local publish-prep notes
+PUBLISH_CHECKLIST.md
