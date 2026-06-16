@@ -210,7 +210,15 @@ static void clock_enter() {
 static char      s_face_set[24] = "flip";                  // active PNG digit set under /storage/faces/
 static char      s_font_name[24] = DEFAULT_FONT;           // active text font (label for `font`)
 static uint8_t  *s_font_blob = nullptr;                    // current FS font buffer (freed on swap)
-static uint16_t *s_png_buf = nullptr;                      // panel-sized RGB565 decode target (PSRAM)
+static uint16_t *s_png_buf = nullptr;                      // current decode target (points at a cache slot)
+
+// Decoded-digit cache: each set's ten 135x240 RGB565 images are decoded from the
+// FS once into PSRAM, then the clock just blits them. Decoding a PNG per second
+// (pngle, pixel-by-pixel) was too slow — the seconds face skipped values and tore
+// on rollover. Rebuilt when the active set changes (`face set`).
+static uint16_t *s_digit_cache[10] = {nullptr};
+static bool      s_digit_ok[10]    = {false};
+static char      s_cache_set[24]   = "";
 
 // pngle draws pixel-by-pixel (occasionally as a w*h run); accumulate into the
 // panel buffer carried in user_data. Alpha is pre-composited over black in the
@@ -244,8 +252,28 @@ static bool png_decode_file(const char *path) {
     return ok;
 }
 
-// PNG flip-clock: HHMMSS, one FS digit image per panel.
+// Ensure the digit cache holds the active face set, (re)decoding inline if not.
+// The ten panel-sized PSRAM buffers (~633 KB total) are allocated on first use —
+// only when the PNG face is actually shown. A missing/undecodable digit is left
+// marked invalid and simply skipped at draw time.
+static void face_cache_ensure() {
+    if (strcmp(s_cache_set, s_face_set) == 0) return;          // already cached
+    for (int d = 0; d < 10; d++) {
+        if (!s_digit_cache[d])
+            s_digit_cache[d] = (uint16_t *)heap_caps_malloc(
+                IpstubeModule::kWidth * IpstubeModule::kHeight * sizeof(uint16_t),
+                MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        s_png_buf = s_digit_cache[d];                          // decode straight into the slot
+        char path[64];
+        snprintf(path, sizeof(path), "/storage/faces/%s/%d.png", s_face_set, d);
+        s_digit_ok[d] = s_png_buf && png_decode_file(path);
+    }
+    snprintf(s_cache_set, sizeof(s_cache_set), "%s", s_face_set);
+}
+
+// PNG flip-clock: HHMMSS, one cached digit image per panel (just a blit).
 static void clock_draw_png(const RtcTime &t) {
+    face_cache_ensure();
     int h12 = t.hour % 12;
     if (h12 == 0) h12 = 12;
     int d[6];
@@ -254,13 +282,9 @@ static void clock_draw_png(const RtcTime &t) {
     d[4] = t.second / 10; d[5] = t.second % 10;
     for (int i = 0; i < 6; i++) {
         if (d[i] == s_clock_last[i]) continue;
-        if (d[i] < 0 || d[i] > 9) continue;
-        char path[64];
-        snprintf(path, sizeof(path), "/storage/faces/%s/%d.png", s_face_set, d[i]);
-        if (png_decode_file(path)) {
-            s_disp->drawBitmap((uint8_t)i, s_png_buf);
-            s_clock_last[i] = d[i];
-        }
+        if (d[i] < 0 || d[i] > 9 || !s_digit_ok[d[i]]) continue;
+        s_disp->drawBitmap((uint8_t)i, s_digit_cache[d[i]]);
+        s_clock_last[i] = d[i];
     }
 }
 
@@ -357,8 +381,10 @@ static int clock_tick() {
     xSemaphoreGive(s_rtc_lock);
     if (s_clock_font) clock_draw_font(t);
     else              clock_draw_png(t);
-    // Tick fast while panel 5 is animating news; otherwise a lazy clock cadence.
-    return (s_clock_font && s_panel5_news && s_news[0]) ? NEWS_VFRAME_MS : 250;
+    // PNG face shows seconds — tick fast so they land promptly (cached blits are
+    // cheap). Font face: fast while panel 5 animates news, else a lazy cadence.
+    if (!s_clock_font) return 100;
+    return (s_panel5_news && s_news[0]) ? NEWS_VFRAME_MS : 250;
 }
 
 // ── Marquee scene (cached strip scroll across all six) ─────────────────────────
@@ -1173,9 +1199,6 @@ static bool mount_storage() {
 extern "C" void commander_on_ipstube_ready(IpstubeModule &disp) {
     s_disp = &disp;
     mount_storage();                            // /storage — fonts + face PNGs (best-effort)
-    s_png_buf = (uint16_t *)heap_caps_malloc(
-        IpstubeModule::kWidth * IpstubeModule::kHeight * sizeof(uint16_t),
-        MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);   // PNG-face decode target
     look_load();                                // restore saved face mode / set / font
     // Saved font, then the default, then the embedded fallback copy.
     if (!install_font(s_font_name) && !install_font(DEFAULT_FONT)) {
