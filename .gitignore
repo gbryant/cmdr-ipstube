@@ -6,6 +6,9 @@ build-esp32/
 sdkconfig
 sdkconfig.old
 
+# Build counter (bumped each build by commander_version_stamp; local to each tree)
+.build_number
+
 # Managed components (re-fetched from dependencies.lock)
 managed_components/
 
