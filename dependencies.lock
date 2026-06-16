@@ -1,4 +1,14 @@
 dependencies:
+  esp_littlefs:
+    component_hash: 3a27a7b07f300c24ab9b1c0e38e139c931efb8025abddcb1499badb60d557da2
+    dependencies:
+    - name: idf
+      version: '>=5.0'
+    source:
+      git: https://github.com/joltwallet/esp_littlefs.git
+      path: .
+      type: git
+    version: 21b50ccc6a1636afdc022c250851ab83cceade39
   espressif/mdns:
     component_hash: 8bcf12e37c58c1d584aef32a02b92548124c7a3a9fcf548d3235c844a035e0f0
     dependencies:
@@ -14,8 +24,8 @@ dependencies:
       type: idf
     version: 6.1.0
 direct_dependencies:
+- esp_littlefs
 - espressif/mdns
-- idf
-manifest_hash: c71077bf2228e6a416e680b823dfa46851afd39ca12504ec18cf55209de96388
+manifest_hash: 670cd83ac09eef29c36c220fee561bf86101171b3667aa435c6f7cff10726e21
 target: esp32
 version: 3.0.0

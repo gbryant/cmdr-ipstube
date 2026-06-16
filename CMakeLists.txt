@@ -15,7 +15,6 @@ FetchContent_Populate(commander)
 
 set(COMMANDER_ROOT ${commander_SOURCE_DIR})
 list(APPEND EXTRA_COMPONENT_DIRS ${commander_SOURCE_DIR}/runners/esp32)
-list(APPEND EXTRA_COMPONENT_DIRS $ENV{HOME}/u-developer/esp_littlefs)  # vendored LittleFS (u-developer/setup.sh)
 
 set(COMMANDER_ENABLE_IPSTUBE ON CACHE BOOL "" FORCE)  # commander ipstube (esp_lcd)
 set(COMMANDER_ENABLE_WS2812 ON CACHE BOOL "" FORCE)  # commander ws2812 (RMT)

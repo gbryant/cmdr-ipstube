@@ -1,10 +1,7 @@
-# 8 MB flash — dual OTA + LittleFS storage
-# App is ~1 MB without baked images/font, so 2 MB OTA slots leave plenty of
-# headroom and free ~3.9 MB for the `storage` filesystem (fonts + face PNGs,
-# room for more images later). First flash is over USB; then ./bum-ota.
-# Name,     Type, SubType,  Offset,    Size
-nvs,        data, nvs,      0x9000,    0x5000
-otadata,    data, ota,      0xe000,    0x2000
-app0,       app,  ota_0,    0x10000,   0x200000
-app1,       app,  ota_1,    0x210000,  0x200000
-storage,    data, littlefs, 0x410000,  0x3F0000
+# 8 MB flash — dual OTA + storage(littlefs)
+# Name,     Type, SubType,  Offset,     Size
+nvs,        data, nvs,      0x9000,     0x5000
+otadata,    data, ota,      0xe000,     0x2000
+app0,       app,  ota_0,    0x10000,    0x200000
+app1,       app,  ota_1,    0x210000,   0x200000
+storage,    data, littlefs, 0x410000,   0x3f0000
