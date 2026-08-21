@@ -52,6 +52,17 @@ Build/refresh the asset tree with `scripts/gen-faces.py` (needs Pillow); it is
 packed into the partition image and flashed with the app. The embedded Karla is a
 fallback if the filesystem is empty or unmountable.
 
+```bash
+scripts/gen-faces.py                                  # render the `flip` set from a bundled OFL font
+scripts/gen-faces.py --font Karla-Regular --set karla # …or a different one
+scripts/gen-faces.py --from-dir ~/digits --set myset  # convert your own 0.png…9.png
+```
+
+The shipped `flip` set is **rendered from Open Sauce One** (one of the bundled OFL
+fonts) rather than bundled artwork, so everything in this repo is covered by its
+own licence. Digit sets made from images you supply are yours to license — check
+the terms of any third-party face set before redistributing it.
+
 ## Build & flash
 
 Prereqs: **ESP-IDF v5+** and a **[pngle](https://github.com/kikuchan/pngle)**
@@ -84,7 +95,8 @@ module; the clock/weather/news app logic is in `main/main.cpp`.
 PNG decoding on-device is [pngle](https://github.com/kikuchan/pngle) (MIT,
 © kikuchan), built as a thin IDF component from an external checkout.
 
-Bundled UI fonts, each licensed under the SIL Open Font License 1.1:
+Bundled UI fonts, each licensed under the SIL Open Font License 1.1 — and the
+source of the shipped `flip` digit face, which is rendered from them:
 
 - [Karla](https://github.com/googlefonts/karla) — © The Karla Project Authors
   ([OFL](main/fonts/Karla-Regular-OFL.txt))
