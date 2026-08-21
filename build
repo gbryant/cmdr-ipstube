@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ! command -v idf.py >/dev/null 2>&1; then
+    for _exp in "${IDF_EXPORT:-}" "${IDF_PATH:-}/export.sh" \
+                "$HOME/u-developer/esp-idf/export.sh" \
+                "$HOME/esp/esp-idf/export.sh" "$HOME/esp-idf/export.sh"; do
+        [ -n "$_exp" ] && [ -f "$_exp" ] && { . "$_exp" >/dev/null 2>&1; break; }
+    done
+fi
+command -v idf.py >/dev/null 2>&1 || {
+    echo "esp-idf not found — run 'esp' (or set IDF_EXPORT to your esp-idf/export.sh)" >&2; exit 1; }
 BUILD="$DIR/build-esp32"
 if [ ! -f "$BUILD/config/sdkconfig.json" ]; then
     idf.py -B "$BUILD" set-target esp32

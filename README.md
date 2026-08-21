@@ -1,8 +1,13 @@
 # cmdr-ipstube
 
-A smart clock firmware for the **IPSTube** (classic ESP32 + six ST7789 135×240 IPS
-displays + WS2812 ambient LEDs + DS1302 RTC), built on the
+A smart clock firmware for the **IPSTube**, built on the
 [commander](https://github.com/gbryant/commander) embedded shell framework.
+
+The IPSTube is an off-the-shelf "fake Nixie" desk clock — six 135×240 IPS panels
+(ST7789) standing in glass tubes, plus WS2812 ambient LEDs and a DS1302 RTC, all
+driven by a classic ESP32. This firmware replaces the stock one and adds a live
+shell over USB/telnet, OTA updates, and swappable faces/fonts on a filesystem
+partition.
 
 ## What it does
 
@@ -49,7 +54,11 @@ fallback if the filesystem is empty or unmountable.
 
 ## Build & flash
 
-ESP-IDF v5+. Copy `secrets.h.example` → `secrets.h` and fill in WiFi + newsapi key.
+Prereqs: **ESP-IDF v5+** and a **[pngle](https://github.com/kikuchan/pngle)**
+checkout at `~/u-developer/pngle` (or `$PNGLE_PATH`) — commander's
+[getting-started guide](https://github.com/gbryant/commander/blob/main/docs/getting-started.md)
+bootstraps both with one script. Copy `secrets.h.example` → `secrets.h` and fill
+in WiFi + newsapi key.
 
 ```bash
 ./build      # idf.py build into build-esp32/
@@ -64,12 +73,16 @@ the new partition table); after that, `./bum-ota` builds and pushes firmware to 
 device. During an update the tubes fill left→right as the image lands. OTA carries
 the **app only** — face/font assets are reflashed over USB when `storage/` changes.
 
-The commander framework is pulled via FetchContent (see `CMakeLists.txt`). Pin the
-version with `cmdr pin` / `unpin`, or build against a local checkout with `cmdr
-link` / `unlink`. Display/text features live in commander's `ipstube` module; the
-clock/weather/news app logic is in `main/main.cpp`.
+The commander framework is pulled via FetchContent, pinned to a release tag (the
+`GIT_TAG` in `CMakeLists.txt`). `cmdr pull` re-fetches that same tag; to adopt a
+newer release, `cmdr pin <tag>` then `cmdr pull` (or build against a local checkout
+with `cmdr link` / `unlink`). Display/text features live in commander's `ipstube`
+module; the clock/weather/news app logic is in `main/main.cpp`.
 
 ## Credits
+
+PNG decoding on-device is [pngle](https://github.com/kikuchan/pngle) (MIT,
+© kikuchan), built as a thin IDF component from an external checkout.
 
 Bundled UI fonts, each licensed under the SIL Open Font License 1.1:
 
