@@ -9,6 +9,10 @@ driven by a classic ESP32. This firmware replaces the stock one and adds a live
 shell over USB/telnet, OTA updates, and swappable faces/fonts on a filesystem
 partition.
 
+![The IPSTube clock running this firmware: four tubes showing 01:04, a fifth with
+the weekday and date, and a sixth showing the current temperature and today's
+forecast.](docs/img/clock.jpg)
+
 ## What it does
 
 - **Font clock** — `HH:MM` rendered from a TTF (Karla) with a dot colon, a
@@ -27,6 +31,51 @@ partition.
   on` cycles clock ↔ news on a timer.
 - **Live tuning** — `tune` (clock layout), `mspeed`/`msize` (marquee),
   `news speed` (news scroll). Type a command bare for usage.
+
+![Panel 5 vertically scrolling a news headline while the other five tubes keep
+showing the time and date.](docs/img/panel5-news.jpg)
+
+*`panel5 news` — headlines scroll up the last tube while the clock keeps running.*
+
+## The shell
+
+Everything above is driven from a live command shell, over USB serial (`./monitor`)
+or telnet on port 23. `help` lists whatever the enabled modules registered:
+
+```console
+$ ./monitor
+Connecting to /dev/cu.wchusbserial1430  (Ctrl-T q to quit)
+
+> help
+  help -- list all commands
+  version -- firmware name, build number, commit
+  rtc -- DS1302 real-time clock - 'rtc' / 'rtc set ...'
+  ipstube -- 6x ST7789 displays - 'ipstube' for usage
+  wifi -- WiFi status/control - 'wifi status|off|on'
+  wled -- WS2812 LEDs - 'wled' for usage
+  marquee -- scroll a message across all six displays
+  read -- vertical-scroll a long message up a panel
+  hscroll -- horizontal-scroll one line across a panel
+  clock -- return the displays to the clock face
+  news -- headlines marquee ('news fetch' refreshes)
+  panel5 -- panel 5 content: weather or news
+  weather -- show/fetch weather ('weather raw' debugs)
+  rotate -- timed scene rotation on/off (clock<->news)
+  hold -- yield displays for external pushes
+  face -- clock face: font|png|set <name> (FS sets)
+  font -- text font: bare lists, <name> loads from FS
+  tune -- font-clock layout offsets (bare = print)
+  mode -- show the active display scene
+  mspeed -- marquee scroll speed in px/frame
+  msize -- marquee font height in px (fps trade)
+  reset -- reboot the firmware
+  ota -- flash firmware from URL (http)
+>
+```
+
+`help`, `version`, `reset` and `ota` come from commander itself; `rtc`, `ipstube`,
+`wifi` and `wled` are stock modules enabled with `cmdr module enable`; the rest are
+this project's own, registered in `main/main.cpp`.
 
 ## Faces & fonts (LittleFS)
 
@@ -57,6 +106,9 @@ scripts/gen-faces.py                                  # render the `flip` set fr
 scripts/gen-faces.py --font Karla-Regular --set karla # …or a different one
 scripts/gen-faces.py --from-dir ~/digits --set myset  # convert your own 0.png…9.png
 ```
+
+![The ten digits of the shipped flip face, each a split-flap card with a hinge gap
+across the middle.](docs/img/flip-face.png)
 
 The shipped `flip` set is **rendered from Open Sauce One** (one of the bundled OFL
 fonts) rather than bundled artwork, so everything in this repo is covered by its
