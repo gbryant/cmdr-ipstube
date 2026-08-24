@@ -139,11 +139,13 @@ def main():
             render_digit(font, str(n)).save(faces_dir / f"{n}.png", optimize=True)
         source = font_path.name
 
-    # the font clock reads its TTFs from the same partition
+    # The font clock reads its TTFs from the same partition. Copy the OFL notices
+    # across with them — the licence requires the fonts to travel with it, and this
+    # tree is flashed to the device as a filesystem in its own right.
     fonts_dir = STORAGE / "fonts"
     fonts_dir.mkdir(parents=True, exist_ok=True)
-    for ttf in sorted(FONT_DIR.glob("*.ttf")):
-        shutil.copy2(ttf, fonts_dir / ttf.name)
+    for f in sorted(list(FONT_DIR.glob("*.ttf")) + list(FONT_DIR.glob("*OFL*.txt"))):
+        shutil.copy2(f, fonts_dir / f.name)
 
     total = sum(p.stat().st_size for p in STORAGE.rglob("*") if p.is_file())
     print(f"wrote faces/{args.set}/0..9.png ({W}x{H}) from {source} "
