@@ -124,11 +124,14 @@ bootstraps both with one script. Copy `secrets.h.example` → `secrets.h` and fi
 in WiFi + newsapi key.
 
 ```bash
+cmdr regen   # write the dev scripts (gitignored — they're generated, not source)
 ./build      # idf.py build into build-esp32/
 ./upload     # USB flash (writes app, partition table, otadata, and the storage FS)
 ./monitor    # serial console
 ./bum        # build + upload + monitor
 ```
+
+The scripts self-source ESP-IDF, so you don't need to load it first.
 
 **OTA (over WiFi):** flash layout is dual 2 MB app slots + a ~3.9 MB `storage`
 filesystem (`partitions.csv`). The **first** flash must be over USB (it lays down

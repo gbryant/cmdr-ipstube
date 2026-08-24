@@ -6,6 +6,15 @@ build-esp32/
 sdkconfig
 sdkconfig.old
 
+# cmdr-generated dev scripts — regenerate with `cmdr regen`, don't commit.
+# They're derived from cmdr's templates, so a committed copy goes stale silently;
+# on CMake targets the generator also bakes absolute paths into them.
+/bum
+/build
+/upload
+/monitor
+/bum-ota
+
 # Build counter (bumped each build by commander_version_stamp; local to each tree)
 .build_number
 
