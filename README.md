@@ -139,11 +139,19 @@ the new partition table); after that, `./bum-ota` builds and pushes firmware to 
 device. During an update the tubes fill left→right as the image lands. OTA carries
 the **app only** — face/font assets are reflashed over USB when `storage/` changes.
 
-The commander framework is pulled via FetchContent, pinned to a release tag (the
-`GIT_TAG` in `CMakeLists.txt`). `cmdr pull` re-fetches that same tag; to adopt a
-newer release, `cmdr pin <tag>` then `cmdr pull` (or build against a local checkout
-with `cmdr link` / `unlink`). Display/text features live in commander's `ipstube`
-module; the clock/weather/news app logic is in `main/main.cpp`.
+Display and text rendering live in commander's `ipstube` module; the
+clock/weather/news logic is this project's own, in `main/main.cpp`.
+
+## Updating the commander framework
+
+This project pins commander to a release tag (the `GIT_TAG` in `CMakeLists.txt`).
+`cmdr pull` re-fetches that same tag, so on its own it changes nothing — to adopt a
+newer release, **`cmdr pin <tag>` then `cmdr pull`** (rebuild after). `cmdr unpin`
+floats on `main` instead; `cmdr update` updates the cmdr tool itself.
+
+> Don't build against a local commander checkout as a normal workflow — it makes this
+> project silently depend on unpublished commander state. (`cmdr link <path>`
+> exists as a deliberate, temporary exception for framework development.)
 
 ## Credits
 
